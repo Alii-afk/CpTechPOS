@@ -25,8 +25,7 @@ class SupplierSeeder extends Seeder
                 'date_of_enrollment' => '2024-01-15',
                 'address' => '123 Tech Street, Silicon Valley, CA 94025',
                 'is_public_profile' => true,
-                'dues_amount' => 0.00,
-                'status' => 'active'
+                'dues_amount' => 0.00
             ],
             [
                 'contact_type' => 'Individual',
@@ -39,8 +38,7 @@ class SupplierSeeder extends Seeder
                 'date_of_enrollment' => '2024-02-20',
                 'address' => '456 Business Ave, London, UK SW1A 1AA',
                 'is_public_profile' => false,
-                'dues_amount' => 1500.00,
-                'status' => 'active'
+                'dues_amount' => 1500.00
             ],
             [
                 'contact_type' => 'Business',
@@ -53,8 +51,7 @@ class SupplierSeeder extends Seeder
                 'date_of_enrollment' => '2024-03-10',
                 'address' => '789 Sheikh Zayed Road, Dubai, UAE',
                 'is_public_profile' => true,
-                'dues_amount' => 2500.00,
-                'status' => 'active'
+                'dues_amount' => 2500.00
             ],
             [
                 'contact_type' => 'Individual',
@@ -67,8 +64,7 @@ class SupplierSeeder extends Seeder
                 'date_of_enrollment' => '2024-04-05',
                 'address' => '321 Main Street, Islamabad, Pakistan',
                 'is_public_profile' => true,
-                'dues_amount' => 0.00,
-                'status' => 'active'
+                'dues_amount' => 0.00
             ],
             [
                 'contact_type' => 'Business',
@@ -81,8 +77,7 @@ class SupplierSeeder extends Seeder
                 'date_of_enrollment' => '2024-05-12',
                 'address' => '654 Innovation Plaza, Madrid, Spain 28001',
                 'is_public_profile' => false,
-                'dues_amount' => 800.00,
-                'status' => 'active'
+                'dues_amount' => 800.00
             ]
         ];
 

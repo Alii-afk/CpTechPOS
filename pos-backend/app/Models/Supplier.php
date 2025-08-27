@@ -23,15 +23,13 @@ class Supplier extends Model
         'profile_image',
         'address',
         'is_public_profile',
-        'dues_amount',
-        'status'
+        'dues_amount'
     ];
 
     protected $casts = [
         'date_of_enrollment' => 'date',
         'is_public_profile' => 'boolean',
-        'dues_amount' => 'decimal:2',
-        'status' => 'string'
+        'dues_amount' => 'decimal:2'
     ];
 
     /**
@@ -54,11 +52,11 @@ class Supplier extends Model
     }
 
     /**
-     * Scope for active suppliers
+     * Scope for active suppliers (all suppliers are considered active now)
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query; // All suppliers are active since we removed status
     }
 
     /**

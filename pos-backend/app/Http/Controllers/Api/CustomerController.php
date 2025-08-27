@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Supplier;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Log; // Added Log facade
+use Illuminate\Support\Facades\Log;
 
-class SupplierController extends Controller
+class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,16 +17,16 @@ class SupplierController extends Controller
     public function index()
     {
         try {
-            $suppliers = Supplier::orderBy('created_at', 'desc')->get();
+            $customers = Customer::orderBy('created_at', 'desc')->get();
             
             return response()->json([
                 'success' => true,
-                'data' => $suppliers
+                'data' => $customers
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch suppliers',
+                'message' => 'Failed to fetch customers',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -49,7 +49,7 @@ class SupplierController extends Controller
                 'first_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'business_name' => 'nullable|string|max:255',
-                'email' => 'required|email|unique:suppliers,email',
+                'email' => 'required|email|unique:customers,email',
                 'business_website' => 'nullable|url|max:255',
                 'whatsapp' => 'nullable|string|max:255',
                 'business_location' => 'nullable|string|max:255',
@@ -57,8 +57,10 @@ class SupplierController extends Controller
                 'date_of_enrollment' => 'nullable|date',
                 'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'address' => 'nullable|string',
+                'shipping_address' => 'nullable|string',
                 'is_public_profile' => 'boolean',
-                'dues_amount' => 'nullable|numeric|min:0'
+                'credit_limit' => 'nullable|numeric|min:0',
+                'current_balance' => 'nullable|numeric|min:0'
             ]);
 
             if ($validator->fails()) {
@@ -69,33 +71,34 @@ class SupplierController extends Controller
                 ], 422);
             }
 
-            $supplierData = $validator->validated();
+            $customerData = $validator->validated();
             
             // Handle profile image upload
             if ($request->hasFile('profile_image')) {
                 $file = $request->file('profile_image');
                 $originalName = $file->getClientOriginalName();
                 $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
-                $file->move(public_path('uploads/suppliers'), $safeName);
-                $supplierData['profile_image'] = $safeName;
+                $file->move(public_path('uploads/customers'), $safeName);
+                $customerData['profile_image'] = $safeName;
             }
             
             // Set default values
-            $supplierData['is_public_profile'] = $supplierData['is_public_profile'] ?? false;
-            $supplierData['dues_amount'] = $supplierData['dues_amount'] ?? 0.00;
+            $customerData['is_public_profile'] = $customerData['is_public_profile'] ?? false;
+            $customerData['credit_limit'] = $customerData['credit_limit'] ?? 0.00;
+            $customerData['current_balance'] = $customerData['current_balance'] ?? 0.00;
 
-            $supplier = Supplier::create($supplierData);
+            $customer = Customer::create($customerData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Supplier created successfully',
-                'data' => $supplier
+                'message' => 'Customer created successfully',
+                'data' => $customer
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create supplier',
+                'message' => 'Failed to create customer',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -104,17 +107,17 @@ class SupplierController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Supplier $supplier)
+    public function show(Customer $customer)
     {
         try {
             return response()->json([
                 'success' => true,
-                'data' => $supplier->fresh()
+                'data' => $customer->fresh()
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch supplier',
+                'message' => 'Failed to fetch customer',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -123,12 +126,12 @@ class SupplierController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Supplier $supplier)
+    public function update(Request $request, Customer $customer)
     {
         try {
             // Debug: Log incoming request data
-            Log::info('Supplier update request received', [
-                'supplier_id' => $supplier->id,
+            Log::info('Customer update request received', [
+                'customer_id' => $customer->id,
                 'request_data' => $request->all(),
                 'request_method' => $request->method(),
                 'content_type' => $request->header('Content-Type'),
@@ -174,7 +177,7 @@ class SupplierController extends Controller
                                 }
                                 
                                 // Data type conversion
-                                if (in_array($fieldName, ['dues_amount'])) {
+                                if (in_array($fieldName, ['credit_limit', 'current_balance'])) {
                                     $data[$fieldName] = $value === '' ? null : (float) $value;
                                 } elseif (in_array($fieldName, ['is_public_profile'])) {
                                     $data[$fieldName] = $value === 'true';
@@ -206,7 +209,7 @@ class SupplierController extends Controller
                     'sometimes',
                     'required',
                     'email',
-                    Rule::unique('suppliers')->ignore($supplier->id)
+                    Rule::unique('customers')->ignore($customer->id)
                 ],
                 'business_website' => 'nullable|url|max:255',
                 'whatsapp' => 'nullable|string|max:255',
@@ -214,8 +217,10 @@ class SupplierController extends Controller
                 'business_status' => 'sometimes|required|in:Shop,Website,Dealer',
                 'date_of_enrollment' => 'nullable|date',
                 'address' => 'nullable|string',
+                'shipping_address' => 'nullable|string',
                 'is_public_profile' => 'boolean',
-                'dues_amount' => 'nullable|numeric|min:0'
+                'credit_limit' => 'nullable|numeric|min:0',
+                'current_balance' => 'nullable|numeric|min:0'
             ];
 
             // Add profile_image validation only if not using manual parsing
@@ -233,15 +238,15 @@ class SupplierController extends Controller
                 ], 422);
             }
 
-            $supplierData = $validator->validated();
+            $customerData = $validator->validated();
             
             // Handle profile image upload
             if ($request->hasFile('profile_image')) {
                 $file = $request->file('profile_image');
                 $originalName = $file->getClientOriginalName();
                 $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
-                $file->move(public_path('uploads/suppliers'), $safeName);
-                $supplierData['profile_image'] = $safeName;
+                $file->move(public_path('uploads/customers'), $safeName);
+                $customerData['profile_image'] = $safeName;
             } elseif ($request->method() === 'PUT' && strpos($request->header('Content-Type'), 'multipart/form-data') !== false) {
                 // Check if there's a file upload in the raw input for manual parsing
                 $rawInput = $request->getContent();
@@ -264,8 +269,8 @@ class SupplierController extends Controller
                                 $fileEnd = strrpos($part, "\r\n");
                                 $fileContent = substr($part, $fileStart, $fileEnd - $fileStart);
                                 
-                                file_put_contents(public_path('uploads/suppliers/' . $safeName), $fileContent);
-                                $supplierData['profile_image'] = $safeName;
+                                file_put_contents(public_path('uploads/customers/' . $safeName), $fileContent);
+                                $customerData['profile_image'] = $safeName;
                                 break;
                             }
                         }
@@ -273,18 +278,18 @@ class SupplierController extends Controller
                 }
             }
             
-            $supplier->update($supplierData);
+            $customer->update($customerData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Supplier updated successfully',
-                'data' => $supplier
+                'message' => 'Customer updated successfully',
+                'data' => $customer
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update supplier',
+                'message' => 'Failed to update customer',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -293,53 +298,37 @@ class SupplierController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Supplier $supplier)
+    public function destroy(Customer $customer)
     {
         try {
-            $supplier->delete();
+            // Delete profile image if exists
+            if ($customer->profile_image) {
+                $imagePath = public_path('uploads/customers/' . $customer->profile_image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            
+            $customer->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Supplier deleted successfully'
+                'message' => 'Customer deleted successfully'
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete supplier',
+                'message' => 'Failed to delete customer',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get supplier dues
+     * Update customer balance
      */
-    public function getDues(Supplier $supplier)
-    {
-        try {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'supplier_id' => $supplier->id,
-                    'supplier_name' => $supplier->display_name,
-                    'dues_amount' => $supplier->dues_amount,
-                    'formatted_dues' => $supplier->formatted_dues,
-                    'has_dues' => $supplier->hasDues()
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch supplier dues',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Update supplier dues
-     */
-    public function updateDues(Request $request, Supplier $supplier)
+    public function updateBalance(Request $request, Customer $customer)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -360,86 +349,87 @@ class SupplierController extends Controller
 
             switch ($operation) {
                 case 'add':
-                    $supplier->addDues($amount);
+                    $customer->addToBalance($amount);
                     break;
                 case 'subtract':
-                    $supplier->subtractDues($amount);
+                    $customer->subtractFromBalance($amount);
                     break;
                 case 'set':
-                    $supplier->dues_amount = max(0, $amount);
-                    $supplier->save();
+                    $customer->current_balance = max(0, $amount);
+                    $customer->save();
                     break;
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Supplier dues updated successfully',
+                'message' => 'Customer balance updated successfully',
                 'data' => [
-                    'supplier_id' => $supplier->id,
-                    'dues_amount' => $supplier->dues_amount,
-                    'formatted_dues' => $supplier->formatted_dues
+                    'customer_id' => $customer->id,
+                    'current_balance' => $customer->current_balance,
+                    'formatted_current_balance' => $customer->formatted_current_balance,
+                    'available_credit' => $customer->available_credit,
+                    'formatted_available_credit' => $customer->formatted_available_credit
                 ]
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update supplier dues',
+                'message' => 'Failed to update customer balance',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get active suppliers for dropdowns
+     * Get customers for dropdowns
      */
-    public function active()
+    public function list()
     {
         try {
-            $suppliers = Supplier::active()
-                ->select('id', 'first_name', 'last_name', 'business_name', 'email', 'contact_type')
+            $customers = Customer::select('id', 'first_name', 'last_name', 'business_name', 'email', 'contact_type')
                 ->orderBy('business_name')
                 ->orderBy('first_name')
                 ->get()
-                ->map(function ($supplier) {
+                ->map(function ($customer) {
                     return [
-                        'id' => $supplier->id,
-                        'name' => $supplier->display_name,
-                        'email' => $supplier->email
+                        'id' => $customer->id,
+                        'name' => $customer->display_name,
+                        'email' => $customer->email
                     ];
                 });
 
             return response()->json([
                 'success' => true,
-                'data' => $suppliers
+                'data' => $customers
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch active suppliers',
+                'message' => 'Failed to fetch customers',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get suppliers with dues
+     * Get customers with outstanding balances
      */
-    public function withDues()
+    public function withOutstandingBalance()
     {
         try {
-            $suppliers = Supplier::where('dues_amount', '>', 0)
-                ->orderBy('dues_amount', 'desc')
+            $customers = Customer::where('current_balance', '>', 0)
+                ->orderBy('current_balance', 'desc')
                 ->get();
 
             return response()->json([
                 'success' => true,
-                'data' => $suppliers
+                'data' => $customers
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch suppliers with dues',
+                'message' => 'Failed to fetch customers with outstanding balance',
                 'error' => $e->getMessage()
             ], 500);
         }

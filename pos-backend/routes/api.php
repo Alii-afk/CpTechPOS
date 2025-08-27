@@ -52,4 +52,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('suppliers/with-dues', [App\Http\Controllers\Api\SupplierController::class, 'withDues']);
     Route::get('suppliers/{supplier}/dues', [App\Http\Controllers\Api\SupplierController::class, 'getDues']);
     Route::post('suppliers/{supplier}/dues', [App\Http\Controllers\Api\SupplierController::class, 'updateDues']);
+    
+    // Customers
+    Route::apiResource('customers', App\Http\Controllers\Api\CustomerController::class);
+    Route::get('customers/list', [App\Http\Controllers\Api\CustomerController::class, 'list']);
+    Route::get('customers/outstanding-balance', [App\Http\Controllers\Api\CustomerController::class, 'withOutstandingBalance']);
+    Route::post('customers/{customer}/balance', [App\Http\Controllers\Api\CustomerController::class, 'updateBalance']);
+    
+    // Brands and Flavors
+    Route::apiResource('brands', App\Http\Controllers\Api\BrandController::class);
+    Route::get('brands/active', [App\Http\Controllers\Api\BrandController::class, 'active']);
+    Route::get('brands/with-flavor-count', [App\Http\Controllers\Api\BrandController::class, 'withFlavorCount']);
+    
+    // Flavors
+    Route::apiResource('flavors', App\Http\Controllers\Api\FlavorController::class);
+    Route::get('flavors/active', [App\Http\Controllers\Api\FlavorController::class, 'active']);
+    Route::get('brands/{brand}/flavors', [App\Http\Controllers\Api\FlavorController::class, 'byBrand']);
+    Route::get('brands/{brand}/flavors/active', [App\Http\Controllers\Api\FlavorController::class, 'activeByBrand']);
+    Route::post('brands/{brand}/flavors', [App\Http\Controllers\Api\FlavorController::class, 'store']);
 }); 
