@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreignId('brand_id')->constrained('brands');
             $table->foreignId('flavor_id')->nullable()->constrained('flavors');
             $table->foreignId('unit_id')->constrained('units');
-            $table->foreignId('business_location_id')->constrained('business_locations');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             
             // Default Settings (can be overridden in inventory)
             $table->integer('default_alert_quantity')->default(10);
@@ -48,7 +48,7 @@ return new class extends Migration
             $table->timestamps();
             
             // Indexes
-            $table->index(['product_sku', 'business_location_id']);
+            $table->index(['product_sku']);
             $table->index(['product_category_id', 'brand_id']);
             $table->index(['is_active', 'is_public']);
         });
@@ -61,4 +61,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('products');
     }
-}; 
+};
