@@ -37,9 +37,9 @@ class UserSetupSeeder extends Seeder
             ['tab_name' => 'Commission Agents', 'tab_slug' => 'commission_agents'],
             ['tab_name' => 'Supplier', 'tab_slug' => 'supplier'],
             ['tab_name' => 'Customer', 'tab_slug' => 'customer'],
-            ['tab_name' => 'Add Item', 'tab_slug' => 'add_item'],
+            ['tab_name' => 'Add Product', 'tab_slug' => 'add_product'],
             ['tab_name' => 'Update Product Price and Quantity', 'tab_slug' => 'update_product_price_quantity'],
-            ['tab_name' => 'Item Category', 'tab_slug' => 'item_category'],
+            ['tab_name' => 'Product Category', 'tab_slug' => 'product_category'],
             ['tab_name' => 'Brand', 'tab_slug' => 'brand'],
             ['tab_name' => 'Flavour', 'tab_slug' => 'flavour'],
             ['tab_name' => 'Units', 'tab_slug' => 'units'],
@@ -155,7 +155,7 @@ class UserSetupSeeder extends Seeder
                 $q->whereIn('slug', ['view', 'add']);
             });
         })->whereHas('permissionTab', function($query) {
-            $query->whereIn('tab_slug', ['sale', 'customer', 'add_item', 'purchase', 'expense']);
+            $query->whereIn('tab_slug', ['sale', 'customer', 'add_product', 'purchase', 'expense']);
         })->get();
         $cashierRole->tabPermissions()->attach($cashierPermissions);
 

@@ -23,8 +23,13 @@ class DatabaseSeeder extends Seeder
         // Call our custom seeders
         $this->call([
             UserSetupSeeder::class,
+            BusinessLocationSeeder::class,
+            SupplierSeeder::class,
             CustomerSeeder::class,
             BrandSeeder::class,
+            ProductCategorySeeder::class,
+            UnitSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

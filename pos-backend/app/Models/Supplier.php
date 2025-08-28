@@ -52,11 +52,11 @@ class Supplier extends Model
     }
 
     /**
-     * Scope for active suppliers (all suppliers are considered active now)
+     * Scope for active suppliers (public suppliers)
      */
     public function scopeActive($query)
     {
-        return $query; // All suppliers are active since we removed status
+        return $query->where('is_public_profile', true);
     }
 
     /**

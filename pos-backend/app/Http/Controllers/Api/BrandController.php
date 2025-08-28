@@ -234,7 +234,11 @@ class BrandController extends Controller
     public function active()
     {
         try {
-            $brands = Brand::active()->with('activeFlavors')->get();
+            $brands = Brand::where('brand_status', 'active')
+                          ->with(['flavors' => function($query) {
+                              $query->where('flavor_status', 'active');
+                          }])
+                          ->get();
             
             return response()->json([
                 'success' => true,

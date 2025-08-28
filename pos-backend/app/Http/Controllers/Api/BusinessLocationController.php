@@ -232,7 +232,7 @@ class BusinessLocationController extends Controller
     {
         try {
             $businessLocations = BusinessLocation::active()
-                ->select('id', 'business_name', 'location_id', 'city', 'state')
+                ->select('id', 'business_name', 'location_id', 'city', 'state', 'business_currency')
                 ->orderBy('business_name')
                 ->get();
             
